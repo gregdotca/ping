@@ -39,12 +39,15 @@ def get_users_ip_address():
 
 def check_ping(address):
     result = ping(address, timeout=PING_TIMEOUT)
-    formatted_result = f"{result:.20f}"
 
-    if result is None or result <= 0:
-        full_result = f"There was <strong>no reply</strong> to your ping of {address}"
-    else:
+    try:
+
+        formatted_result = f"{result:.20f}"
         full_result = f"pong! {address} responded in {formatted_result} seconds"
+
+    except Exception:
+
+        full_result = f"There was <strong>no reply</strong> to your ping of {address}"
 
     return full_result
 
