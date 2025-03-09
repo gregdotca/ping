@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+from flask import Flask, redirect, render_template, request
+from ping3 import ping
+
+app = Flask(__name__, static_folder="assets")
+
+APP_TITLE = "ping"
+PING_TIMEOUT = 5
+
+
+@app.route("/", methods=["GET", "POST"])
+def home():
+    if request.method == "GET":
+        ip_address = get_users_ip_address()
+    else:
+        ip_address = str(request.form["address"])
+
+    return redirect("/" + ip_address, code=302)
+
+
+@app.route("/<address>", methods=["GET"])
+def lookup(address):
+    ping_result = check_ping(address)
+    return display_homepage(address, ping_result)
+
+
+def display_homepage(address, page_body):
+    return render_template(
+        "home.html",
+        app_title=APP_TITLE,
+        address=address,
+        page_body=page_body,
+    )
+
+
+def get_users_ip_address():
+    return request.environ.get("HTTP_X_FORWARDED_FOR", request.remote_addr)
+
+
+def check_ping(address):
+    result = ping(address, timeout=PING_TIMEOUT)
+    formatted_result = f"{result:.20f}"
+
+    if result is None or result <= 0:
+        full_result = f"There was <strong>no reply</strong> to your ping of {address}"
+    else:
+        full_result = f"pong! {address} responded in {formatted_result} seconds"
+
+    return full_result
+
+
+if __name__ == "__main__":
+    app.run()
