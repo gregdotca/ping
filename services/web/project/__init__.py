@@ -15,7 +15,7 @@ def home():
     else:
         ip_address = str(request.form["address"])
 
-    return redirect("/" + ip_address, code=302)
+    return redirect("/" + ip_address)
 
 
 @app.route("/<address>", methods=["GET"])
