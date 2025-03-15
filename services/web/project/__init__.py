@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import socket
 from flask import Flask, redirect, render_template, request
 from ping3 import ping
 
@@ -38,14 +39,22 @@ def get_users_ip_address():
 
 
 def check_ping(address):
-    result = ping(address, timeout=PING_TIMEOUT)
+
+    try:
+
+        result = ping(address, timeout=PING_TIMEOUT)
+        result_ip = socket.gethostbyname(address)
+
+    except Exception:
+
+        return f"There was <strong>a problem</strong> while trying to ping {address}"
 
     if result:
 
         try:
 
             formatted_result = f"{result:.20f}"
-            full_result = f"pong! {address} responded in {formatted_result} seconds"
+            full_result = f"pong! {address} (<strong>{result_ip}</strong>) responded in <strong>{formatted_result}</strong> seconds"
 
         except Exception:
 
