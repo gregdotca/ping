@@ -54,7 +54,10 @@ def check_ping(address):
         try:
 
             formatted_result = f"{result:.20f}"
-            full_result = f"pong! {address} (<strong>{result_ip}</strong>) responded in <strong>{formatted_result}</strong> seconds"
+            if address == result_ip:
+                full_result = f"pong! {address} responded in <strong>{formatted_result}</strong> seconds"
+            else:
+                full_result = f"pong! {address} (<strong>{result_ip}</strong>) responded in <strong>{formatted_result}</strong> seconds"
 
         except Exception:
 
