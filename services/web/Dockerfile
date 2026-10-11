@@ -17,7 +17,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends gcc
 
 # lint
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip==26.0.1
 RUN pip install flake8==7.1.2
 COPY . .
 RUN flake8 --ignore=E501,W503,F401 .
@@ -48,7 +48,7 @@ WORKDIR $APP_HOME
 
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip==26.0.1
 RUN pip install --no-cache /wheels/*
 
 # copy project
