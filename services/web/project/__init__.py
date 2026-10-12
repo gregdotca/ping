@@ -69,25 +69,19 @@ def check_ping(address):
 
         return Markup("There was <strong>a problem</strong> while trying to ping {}").format(address)
 
-    if result:
+    # ping3 returns the delay in seconds, or None/False when there's no
+    # reply; checking the type keeps a 0.0 delay from counting as no reply
+    if not isinstance(result, float):
 
-        try:
+        return Markup("There was <strong>no reply</strong> to your ping of {}").format(address)
 
-            formatted_result = f"{result:.20f}"
-            if address == result_ip:
-                full_result = Markup("pong! {} responded in <strong>{}</strong> seconds").format(address, formatted_result)
-            else:
-                full_result = Markup("pong! {} (<strong>{}</strong>) responded in <strong>{}</strong> seconds").format(address, result_ip, formatted_result)
+    milliseconds = f"{result * 1000:.2f}"
 
-        except Exception:
+    if address == result_ip:
 
-            full_result = Markup("There was <strong>no reply</strong> to your ping of {}").format(address)
+        return Markup("pong! {} responded in <strong>{}</strong> ms").format(address, milliseconds)
 
-    else:
-
-        full_result = Markup("There was <strong>no reply</strong> to your ping of {}").format(address)
-
-    return full_result
+    return Markup("pong! {} (<strong>{}</strong>) responded in <strong>{}</strong> ms").format(address, result_ip, milliseconds)
 
 
 if __name__ == "__main__":

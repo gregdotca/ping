@@ -2,6 +2,25 @@
 
 ## 2026-10-11
 
+- Upgrade gunicorn from 20.1.0 to 26.2.0. 20.1.0 dates from 2021 and
+  misses the request-smuggling fixes in 22.0 and 23.0, which matter
+  for an app behind a reverse proxy (`requirements.txt`).
+- Upgrade Python from 3.9 to 3.13 (`python:3.13.16-slim`). 3.9
+  reached end of life in October 2025 and no longer gets security
+  fixes, and gunicorn 24+ needs Python 3.10 or later (`Dockerfile`).
+- Run gunicorn with 2 workers and 4 threads each. With the default
+  single sync worker, one ping to an unresponsive address held the
+  only worker for the full 5-second timeout, so every other visitor
+  waited behind it. `--no-control-socket` turns off the unused
+  control socket gunicorn 25.1+ creates by default, which would go
+  under the `app` user's home directory, a directory it doesn't own
+  (`docker-compose.yml`).
+- Show the round-trip time in milliseconds to two decimal places
+  (`9.93 ms`) instead of seconds to twenty (`0.00993...`). The
+  `try/except` around the formatting could never fail and is gone,
+  and a reply is now recognised by `ping3.ping()` returning a float,
+  so a 0.0 delay no longer counts as no reply
+  (`project/__init__.py`).
 - Add `<!doctype html>`, `lang="en"`, and a viewport meta tag, and
   remove three classes that did nothing. Without a doctype the browser
   rendered the page in quirks mode, which Tailwind's base styles don't
