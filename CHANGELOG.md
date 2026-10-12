@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-10-12
+
+- Add Dependabot version updates. Dependabot alerts and security fix
+  PRs (set in the GitHub repo's settings, not in this file) only cover
+  known vulnerabilities; nothing kept the pinned packages or the
+  Python base image current otherwise. Dependabot now checks
+  `requirements.txt` and the `Dockerfile`'s Python base image once a
+  month, with all pip updates grouped into one PR. It only proposes
+  versions that have been out for at least 7 days, so a bad or
+  hijacked release has time to be caught and pulled first; security
+  fix PRs aren't delayed. The versions pinned inside the
+  `Dockerfile`'s build steps (pip, flake8, and the Tailwind CLI)
+  aren't covered and still need updating by hand. GitHub Actions
+  isn't included because the repo has no workflows
+  (`.github/dependabot.yml`, new).
+
 ## 2026-10-11
 
 - Refuse to ping addresses that aren't public. Any address the
