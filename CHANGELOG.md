@@ -2,6 +2,16 @@
 
 ## 2026-10-11
 
+- Add automatic dark mode that follows the visitor's system setting,
+  with no toggle or JavaScript. daisyUI's `business` theme is paired
+  with `bumblebee` as `--prefersdark`; `data-theme="bumblebee"` is
+  removed from `<html>`, since it locked the page to light mode, and
+  a `color-scheme` meta tag is added. In dark mode the ping button
+  uses a darker navy primary instead of `business`'s orange accent
+  (text 8.30:1 on the button), and `bumblebee`'s rounder corners
+  replace `business`'s nearly square ones
+  (`services/web/project/styles/app.css`, `templates/home.html`,
+  `CLAUDE.md`).
 - Build the CSS locally instead of loading Tailwind and daisyUI from
   jsDelivr at page load. The Docker builder stage downloads the
   Tailwind 4.3.3 standalone CLI (checked against per-architecture
