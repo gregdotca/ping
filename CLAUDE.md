@@ -20,6 +20,12 @@ Lint (the same check the production Docker build runs; a flake8 failure fails th
 cd services/web && flake8 --ignore=E501,W503,F401 .
 ```
 
+Build the CSS without Docker (needs the Tailwind standalone CLI on the host; drop `--minify` and add `--watch` while editing):
+
+```bash
+cd services/web && tailwindcss -i project/styles/app.css -o project/assets/app.css --minify
+```
+
 ## Dev/prod switching
 
 The repo holds the PROD configuration. Dev uses locally excluded files (listed in `.git/info/exclude`): `docker-compose.DEV.yml`, `services/web/Dockerfile.DEV`, and the `./to-dev.sh` and `./to-prod.sh` scripts that swap them in and out by renaming. None of them are tracked, so a fresh clone has no dev setup; don't look for them in git history.
@@ -27,7 +33,7 @@ The repo holds the PROD configuration. Dev uses locally excluded files (listed i
 - `./to-dev.sh` renames the tracked `docker-compose.yml` and `services/web/Dockerfile` to `*.PROD*`, and moves the DEV versions into their place.
 - `./to-prod.sh` reverses it.
 
-In DEV mode the same `docker-compose up -d --build` runs Flask's debug server (`python manage.py --debug run -h 0.0.0.0`) on host port 5000 (not 8102), with `services/web/` bind-mounted to `/app`, so code changes reload live. The dev image differs from prod in ways that matter: it doesn't run flake8 (lint errors only show up in the prod build), it installs `dnsutils`, and it runs as root, so pinging working in dev doesn't prove it works in prod.
+In DEV mode the same `docker-compose up -d --build` runs Flask's debug server (`python manage.py --debug run -h 0.0.0.0`) on host port 5000 (not 8102), with `services/web/` bind-mounted to `/app`, so code changes reload live. Alongside it, `tailwindcss --watch=always` rebuilds `project/assets/app.css` into the mounted directory (`--watch=always` because the container's stdin is closed, which would stop a plain `--watch`), so that file on the host is owned by root. The dev image differs from prod in ways that matter: it doesn't run flake8 (lint errors only show up in the prod build), it installs `dnsutils`, and it runs as root, so pinging working in dev doesn't prove it works in prod.
 
 While in DEV mode the tracked `docker-compose.yml` and `Dockerfile` show as modified and the `*.PROD*` files show as untracked. **Run `./to-prod.sh` before committing**, so the dev versions aren't committed. If `docker-compose.PROD.yml` exists, the working tree is in DEV mode.
 
@@ -43,6 +49,6 @@ All the app code is in `services/web/project/__init__.py`; `manage.py` only wrap
 - Pinging is IPv4-only: ping3 4.0.8 and `socket.gethostbyname()` only handle IPv4, and the production container's Docker network has IPv6 disabled. `check_ping()` answers IPv6 literals with an "aren't supported" message before trying.
 - `check_ping()` builds its result messages with `Markup(...).format(...)`, so the markup in the format string is kept and `address`/`result_ip` are HTML-escaped. Keep using that (not f-strings) for any message that includes user input; the template renders `page_body` without `|safe`.
 - The static folder is `project/assets/` (not `static/`), served via `url_for('static', ...)`. jQuery is vendored there and only shows the loading spinner on submit.
-- Styling is Tailwind 4 + daisyUI 5 from jsDelivr CDNs (`bumblebee` theme); there is no frontend build step.
+- Styling is Tailwind 4 + daisyUI 5, built locally rather than loaded from a CDN: at image build time in production, and by the `--watch=always` process in dev (see Dev/prod switching). The Tailwind standalone CLI (no Node; version and per-architecture SHA-256s pinned as `ARG`s in the production Dockerfile's builder stage and in `Dockerfile.DEV`) compiles `project/styles/app.css` into `project/assets/app.css`, which is gitignored and copied into the final stage after `COPY . $APP_HOME`. `app.css` uses `source(none)` and `@source "../templates"`, so only the templates are scanned: a class used only from Python or JS isn't built unless it also appears in a template. daisyUI is the vendored plugin `project/styles/daisyui-<version>.mjs`, with only the `bumblebee` theme enabled. To upgrade Tailwind, change the `ARG`s in both Dockerfiles, taking the SHA-256s from the release's asset digests. To upgrade daisyUI, download the new release's `daisyui.mjs`, check its SHA-256 against that release asset's digest, save it as `daisyui-<version>.mjs` in place of the old file, and update the `@plugin` path and version comment in `app.css`. `project/styles/` is outside the static folder, so its files aren't served. `home.html` still has three classes that do nothing (`form`, `justify-left`, and `loading-circle`); none of them exist in Tailwind or daisyUI.
 - `templates/custom.headers` is an optional, gitignored include (`ignore missing`) for per-deployment `<head>` content such as analytics.
-- Python is 3.9 (`python:3.9.21-slim`); direct dependencies are pinned in `services/web/requirements.txt` (transitive ones such as Jinja2 and MarkupSafe aren't, so they can change between builds), and pip is pinned in the Dockerfile. The production image is multi-stage: the builder stage lints and builds wheels, and the final stage runs as the non-root `app` user.
+- Python is 3.9 (`python:3.9.21-slim`); direct dependencies are pinned in `services/web/requirements.txt` (transitive ones such as Jinja2 and MarkupSafe aren't, so they can change between builds), and pip is pinned in the Dockerfile. The production image is multi-stage: the builder stage lints, builds the CSS, and builds wheels, and the final stage runs as the non-root `app` user.

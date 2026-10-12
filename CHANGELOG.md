@@ -2,6 +2,22 @@
 
 ## 2026-10-11
 
+- Build the CSS locally instead of loading Tailwind and daisyUI from
+  jsDelivr at page load. The Docker builder stage downloads the
+  Tailwind 4.3.3 standalone CLI (checked against per-architecture
+  SHA-256s) and compiles `project/styles/app.css` into
+  `project/assets/app.css`, which the final stage copies in and
+  `home.html` loads from `/assets/app.css`. daisyUI 5.7.46 is vendored
+  as `project/styles/daisyui-5.7.46.mjs` (SHA-256 checked against the
+  release). This removes the runtime dependency on a third-party CDN,
+  pins versions that were floating (`daisyui@5`,
+  `@tailwindcss/browser@4`), and drops the in-browser Tailwind
+  compiler. The built file is
+  gitignored (`services/web/Dockerfile`, `.gitignore`,
+  `services/web/project/styles/`, `templates/home.html`, `CLAUDE.md`).
+  The untracked dev setup installs the same CLI and runs
+  `tailwindcss --watch=always` next to Flask's debug server, as
+  described in `CLAUDE.md`.
 - Add `CLAUDE.md` with the commands, the dev/prod switching workflow,
   and an architecture overview, so AI assistants can work in the repo
   without rediscovering them.
