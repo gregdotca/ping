@@ -2,6 +2,15 @@
 
 ## 2026-10-12
 
+- Upgrade Werkzeug from 3.1.8 to 3.1.9, the security release for
+  GHSA-g6x2-hccm-hh4m (Dependabot alert #1, medium): `safe_join()`
+  let Windows special device names through. That only matters on
+  Windows, and the app runs in a Linux container, so it wasn't
+  exposed. Werkzeug says the release fixes bugs but doesn't otherwise
+  change behaviour. Same change as Dependabot's PR #3, made here so it
+  has a changelog entry; Dependabot should close the PR once it sees
+  the new pin, and if it doesn't, it can be closed by hand
+  (`requirements.txt`).
 - Add Dependabot version updates. Dependabot alerts and security fix
   PRs (set in the GitHub repo's settings, not in this file) only cover
   known vulnerabilities; nothing kept the pinned packages or the
