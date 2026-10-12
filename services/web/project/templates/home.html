@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ app_title }}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}">
-    <script type="text/javascript" src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}"></script>
     {% include 'custom.headers' ignore missing %}
     <link href="{{ url_for('static', filename='app.css') }}" rel="stylesheet" type="text/css" />
 </head>
 <body class="p-8">
 <div id="content">
     <h1 class="text-2xl mb-3"><a href="/">{{ app_title }}</a></h1>
-    <form method="POST" action="/" class="pb-7" onsubmit="$('#loading').show();">
+    <form method="POST" action="/" class="pb-7" onsubmit="document.getElementById('loading').style.display = 'block';">
         <div class="flex">
             <fieldset class="fieldset bg-base-200 border border-base-300 p-10 -ml-1 rounded-box">
                 <input id="address" class="input" name="address" aria-label="Address" placeholder="Address" value="{{ address }}" onfocus="this.select();" required autofocus><BR>

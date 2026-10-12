@@ -2,6 +2,20 @@
 
 ## 2026-10-11
 
+- Refuse to ping addresses that aren't public. Any address the
+  server could reach was pinged, including loopback, private,
+  link-local, and CGNAT ranges, so a visitor could map which hosts
+  on the server's own networks were up. The address is now resolved
+  first and refused unless `ipaddress` counts it as global, and the
+  ping goes to that resolved IP rather than the name, so a second
+  DNS lookup can't swap in a private address
+  (`project/__init__.py`).
+- Remove jQuery. It was only used to show the loading spinner on
+  submit, which a line of inline JavaScript now does, so every page
+  load skips an 87 KB script (`templates/home.html`,
+  `assets/jquery-3.7.1.min.js`).
+- Remove `FLASK_ENV=production` from `docker-compose.yml`. Flask
+  2.3 removed `FLASK_ENV`, so the setting did nothing.
 - Upgrade gunicorn from 20.1.0 to 26.2.0. 20.1.0 dates from 2021 and
   misses the request-smuggling fixes in 22.0 and 23.0, which matter
   for an app behind a reverse proxy (`requirements.txt`).

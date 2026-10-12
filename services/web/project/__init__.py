@@ -62,8 +62,23 @@ def check_ping(address):
 
     try:
 
-        result = ping(address, timeout=PING_TIMEOUT)
         result_ip = socket.gethostbyname(address)
+
+    except Exception:
+
+        return Markup("There was <strong>a problem</strong> while trying to ping {}").format(address)
+
+    # refuse loopback, private, link-local, and other non-public addresses,
+    # so visitors can't map which hosts on the server's networks are up
+    if not ipaddress.ip_address(result_ip).is_global:
+
+        return Markup("Sorry, {} <strong>isn't a public address</strong>, so it can't be pinged").format(address)
+
+    # ping the IP that was checked, not the name, so a second DNS lookup
+    # can't swap in a private address
+    try:
+
+        result = ping(result_ip, timeout=PING_TIMEOUT)
 
     except Exception:
 
