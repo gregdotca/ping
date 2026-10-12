@@ -55,7 +55,7 @@ def is_ipv6_address(address):
 
 def check_ping(address):
 
-    # ping3 and the container network are IPv4-only
+    # gethostbyname() and the container network are IPv4-only
     if is_ipv6_address(address):
 
         return Markup("Sorry, IPv6 addresses like {} <strong>aren't supported</strong> yet").format(address)

@@ -2,6 +2,20 @@
 
 ## 2026-10-12
 
+- Upgrade ping3 from 4.0.8 to 5.1.6. 5.0 added IPv6 pinging and 5.1
+  IPv6 hop limits; the 5.1.x fixes match ICMP time-exceeded and
+  destination-unreachable replies to the ping that was sent. `ping()`
+  still returns the delay as a float, `None` on a timeout, and `False`
+  on an error, and still falls back to an unprivileged datagram socket
+  for the non-root user, so `check_ping()` needs no changes. The site
+  stays IPv4-only, since `socket.gethostbyname()` only returns IPv4
+  and the Docker network has IPv6 off; the code comment and
+  `CLAUDE.md` now give those as the reasons instead of ping3. Tested
+  in the production image: public addresses reply, an unresponsive
+  one times out after 5 seconds, and private, documentation, and IPv6
+  addresses are refused as before. Same change as Dependabot's PR #4,
+  made here so it has a changelog entry (`requirements.txt`,
+  `project/__init__.py:56`, `CLAUDE.md:49`).
 - Upgrade Werkzeug from 3.1.8 to 3.1.9, the security release for
   GHSA-g6x2-hccm-hh4m (Dependabot alert #1, medium): `safe_join()`
   let Windows special device names through. That only matters on
