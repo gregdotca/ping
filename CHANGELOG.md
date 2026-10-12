@@ -2,6 +2,15 @@
 
 ## 2026-10-11
 
+- Add `<!doctype html>`, `lang="en"`, and a viewport meta tag, and
+  remove three classes that did nothing. Without a doctype the browser
+  rendered the page in quirks mode, which Tailwind's base styles don't
+  expect; without `lang` screen readers had to guess the language; and
+  without a viewport tag phones showed a zoomed-out desktop layout.
+  `form` and `loading-circle` aren't daisyUI classes and
+  `justify-left` isn't a Tailwind class (it's `justify-start`), so
+  none of them was in the built CSS (`templates/home.html`,
+  `CLAUDE.md`).
 - Update the AI Code Rating from B1b to B2b. With the CSS build,
   dark mode, and input label, AI-written lines are about a third of
   the code (80 of 243 lines; the vendored daisyUI and jQuery files
