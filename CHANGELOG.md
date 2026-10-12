@@ -2,6 +2,11 @@
 
 ## 2026-10-11
 
+- Update the AI Code Rating from B1b to B2b. With the CSS build,
+  dark mode, and input label, AI-written lines are about a third of
+  the code (80 of 243 lines; the vendored daisyUI and jQuery files
+  don't count), which moves the AI Share from 1–25% to 26–50%
+  (`ACR.md`, `README.md` badge).
 - Add `aria-label="Address"` to the address input, so screen readers
   announce the field by name instead of relying on the placeholder,
   which isn't a reliable accessible name and disappears once the
