@@ -2,6 +2,19 @@
 
 ## 2026-10-12
 
+- Upgrade Python from 3.13 to 3.14 (`python:3.14.8-slim`), in both
+  stages of the `Dockerfile`. 3.14.8 is an expedited security release
+  (fixes for SSL and tarfile bugs, among others), and 3.14 gets bug
+  fixes for longer than 3.13. Dependabot's PR #1
+  proposed 3.14.7; this goes straight to 3.14.8 instead. All four
+  pinned packages install on it (Flask 3.1.3, gunicorn 26.2.0, ping3
+  5.1.6, Werkzeug 3.1.9). Tested in the production image: flake8 and
+  the CSS build pass, the page and its assets load, public addresses
+  reply, an unresponsive one times out after 5 seconds, and private,
+  IPv6, and unresolvable addresses get their usual messages
+  (`Dockerfile`, `CLAUDE.md:57`). The locally excluded
+  `Dockerfile.DEV` isn't in the repo; it was moved to 3.14.8 by hand
+  to match.
 - Upgrade ping3 from 4.0.8 to 5.1.6. 5.0 added IPv6 pinging and 5.1
   IPv6 hop limits; the 5.1.x fixes match ICMP time-exceeded and
   destination-unreachable replies to the ping that was sent. `ping()`
