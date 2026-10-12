@@ -22,10 +22,12 @@ cd services/web && flake8 --ignore=E501,W503,F401 .
 
 ## Dev/prod switching
 
-The repo holds the PROD configuration. Dev uses locally excluded files (listed in `.git/info/exclude`): `docker-compose.DEV.yml` and `services/web/Dockerfile.DEV`. `./to-dev.sh` and `./to-prod.sh` swap them in and out by renaming:
+The repo holds the PROD configuration. Dev uses locally excluded files (listed in `.git/info/exclude`): `docker-compose.DEV.yml`, `services/web/Dockerfile.DEV`, and the `./to-dev.sh` and `./to-prod.sh` scripts that swap them in and out by renaming. None of them are tracked, so a fresh clone has no dev setup; don't look for them in git history.
 
-- `./to-dev.sh` renames the tracked `docker-compose.yml` and `services/web/Dockerfile` to `*.PROD*`, and moves the DEV versions into their place. Dev runs Flask's debug server on port 5000 with `services/web/` bind-mounted to `/app`, so code changes reload live.
+- `./to-dev.sh` renames the tracked `docker-compose.yml` and `services/web/Dockerfile` to `*.PROD*`, and moves the DEV versions into their place.
 - `./to-prod.sh` reverses it.
+
+In DEV mode the same `docker-compose up -d --build` runs Flask's debug server (`python manage.py --debug run -h 0.0.0.0`) on host port 5000 (not 8102), with `services/web/` bind-mounted to `/app`, so code changes reload live. The dev image differs from prod in ways that matter: it doesn't run flake8 (lint errors only show up in the prod build), it installs `dnsutils`, and it runs as root, so pinging working in dev doesn't prove it works in prod.
 
 While in DEV mode the tracked `docker-compose.yml` and `Dockerfile` show as modified and the `*.PROD*` files show as untracked. **Run `./to-prod.sh` before committing**, so the dev versions aren't committed. If `docker-compose.PROD.yml` exists, the working tree is in DEV mode.
 
@@ -37,6 +39,7 @@ All the app code is in `services/web/project/__init__.py`; `manage.py` only wrap
 
 - `GET /` shows the form with the visitor's IP prefilled (from the first `X-Forwarded-For` entry if present, since it runs behind a reverse proxy) but doesn't ping it: an unresponsive IP takes the full timeout, and the first page load would hang. `POST /` (the form) redirects to `/<submitted address>`, so every result has a shareable URL. The address is encoded with `quote(..., safe="")` in that redirect; without it, an address starting with `/` made a `//host` redirect to another site.
 - `GET /<address>` calls `check_ping()`, which uses `ping3.ping()` (5 s timeout) plus `socket.gethostbyname()` to show the resolved IP when it differs from the input, then renders `templates/home.html`.
+- The production container pings as the non-root `app` user. Its raw ICMP socket fails with `EPERM`, so ping3 falls back to an unprivileged ICMP (datagram) socket. That works only because Docker (20.10+) sets `net.ipv4.ping_group_range` to `0 2147483647` in containers by default (not necessarily with user namespace remapping or rootless Docker); neither compose file sets it. If pings fail on another runtime or host, set that sysctl (in the compose file, or on the host for rootless Docker) rather than adding `NET_RAW` or running as root.
 - Pinging is IPv4-only: ping3 4.0.8 and `socket.gethostbyname()` only handle IPv4, and the production container's Docker network has IPv6 disabled. `check_ping()` answers IPv6 literals with an "aren't supported" message before trying.
 - `check_ping()` builds its result messages with `Markup(...).format(...)`, so the markup in the format string is kept and `address`/`result_ip` are HTML-escaped. Keep using that (not f-strings) for any message that includes user input; the template renders `page_body` without `|safe`.
 - The static folder is `project/assets/` (not `static/`), served via `url_for('static', ...)`. jQuery is vendored there and only shows the loading spinner on submit.

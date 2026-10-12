@@ -5,6 +5,14 @@
 - Add `CLAUDE.md` with the commands, the dev/prod switching workflow,
   and an architecture overview, so AI assistants can work in the repo
   without rediscovering them.
+- Expand `CLAUDE.md`: note that `to-dev.sh` and `to-prod.sh` are
+  untracked too, so a fresh clone has no dev setup; add the dev run
+  command and port 5000; list how the dev image differs from prod
+  (no lint, `dnsutils`, runs as root); and explain that prod pings
+  as non-root through unprivileged ICMP sockets, which rely on
+  Docker's default `net.ipv4.ping_group_range` (the repo doesn't set
+  it), so a failing host gets that sysctl (in the compose file, or on
+  the host for rootless Docker) rather than `NET_RAW` or root.
 - Update the copyright notice in `LICENSE` and `README.md` to
   `Copyright (c) 2025-2026 Greg Chetcuti <greg@chetcuti.com>`, covering
   the current year and adding a contact address.
