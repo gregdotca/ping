@@ -2,6 +2,10 @@
 
 ## 2026-10-11
 
+- Add `aria-label="Address"` to the address input, so screen readers
+  announce the field by name instead of relying on the placeholder,
+  which isn't a reliable accessible name and disappears once the
+  field has a value (`templates/home.html`).
 - Add automatic dark mode that follows the visitor's system setting,
   with no toggle or JavaScript. daisyUI's `business` theme is paired
   with `bumblebee` as `--prefersdark`; `data-theme="bumblebee"` is
