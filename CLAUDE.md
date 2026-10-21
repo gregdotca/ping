@@ -14,6 +14,8 @@ Production (the committed configuration):
 docker-compose up -d --build   # gunicorn on container port 5000, published on host port 8102
 ```
 
+The published port binds to `${BIND_ADDRESS:-127.0.0.1}`, so by default it's reachable only from the host itself. On the server, iac writes a `.env` next to `docker-compose.yml` that sets `BIND_ADDRESS`; `.env` is gitignored. Never put a server's real IP in the repo.
+
 Lint (the same check the production Docker build runs; a flake8 failure fails the build):
 
 ```bash

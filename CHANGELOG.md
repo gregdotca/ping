@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-10-21
+
+- Bind the published port to `${BIND_ADDRESS:-127.0.0.1}` instead of
+  every interface. With a bare `8102:5000`, Docker published the port
+  on all of the host's addresses, including its public IP, so the app
+  could be reached directly, skipping the reverse proxy in front of
+  it (and Docker's own firewall rules bypass a host firewall like
+  ufw). It now listens on 127.0.0.1 by default; setting `BIND_ADDRESS`
+  in the shell or in a `.env` file next to `docker-compose.yml`
+  changes the address (`docker-compose.yml:10`).
+- Ignore `.env`, so a deployment's `BIND_ADDRESS` (and any other
+  local setting) isn't committed (`.gitignore`).
+- Document the default bind address and `BIND_ADDRESS` in the
+  installation steps, which now load http://127.0.0.1:8102
+  (`README.md`).
+
 ## 2026-10-12
 
 - Upgrade Python from 3.13 to 3.14 (`python:3.14.8-slim`), in both

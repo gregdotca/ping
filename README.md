@@ -11,7 +11,9 @@ https://ping.greg.ca
 
 - Clone the repository
 - Run "docker-compose up -d"
-- Load http://IP_ADDRESS:8102 in your web browser
+- Load http://127.0.0.1:8102 in your web browser
+
+The port listens on 127.0.0.1 only by default, so it can't be reached from other machines. To listen on another address, such as a private one a reverse proxy on another machine can reach, set `BIND_ADDRESS` in the shell or in a `.env` file next to `docker-compose.yml` (for example `BIND_ADDRESS=0.0.0.0` for every interface).
 
 ## License
 
