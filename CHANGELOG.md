@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-11
+
+- Link the rating in `ACR.md` to its page on aicoderating.com.
+
 ## 2026-10-21
 
 - Bind the published port to `${BIND_ADDRESS:-127.0.0.1}` instead of
